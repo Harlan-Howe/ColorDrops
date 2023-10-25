@@ -44,13 +44,11 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
      */
     public void resetAllCells()
     {
-        for (int r = 0; r < NUM_ROWS; r++)
-        {
-            for (int c = 0; c < NUM_COLS; c++)
-            {
-                myGrid[r][c] = new ColorCell((int)(Math.random()*NUM_COLORS_USED));
-            }
-        }
+        // ------------------------
+        // TODO #0: loop through NUM_ROWS and NUM_COLS and create a new ColorCell for each spot in myGrid. The constructor
+        //       for ColorCell is expecting an integer in the range [0, NUM_COLORS_USED).
+
+        // ------------------------
         pickLevels();
         gameState = STATUS_KEEP_GOING;
         repaint();
@@ -65,30 +63,22 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
 
     /**
      * Selects what the target height should be for each column... which translates to the height of the dotted lines.
+     * (Assumes that myGrid is full of live cells.)
      */
     public void pickLevels()
     {
         Color[] targetColors = new Color[NUM_COLORS_USED-1];
         for (int i=0; i<NUM_COLORS_USED -1; i++)
             targetColors[i] = COLOR_LIST[(int)(Math.random()*NUM_COLORS_USED)];
+        // TODO #4: targetColors is now a list of colors, possibly (likely) with some duplicates.
+        //          For each column, add up all the cells that match any of the colors in targetColors and
+        //          set levels[col#] to be that count.
+        // Note: if Color.RED is in the targetColors twice, and you have a cell that is red, it should only
+        // count as 1, not 2.
 
-        for (int c=0; c<NUM_COLS; c++)
-        {
-            int count = 0;
-            for (ColorCell[] row: myGrid)
-            {
-                boolean matched = false;
-                for (Color col: targetColors)
-                    if (row[c].getMyColor() == col)
-                    {
-                        matched = true;
-                        break;
-                    }
-                if (matched)
-                    count++;
-            }
-            levels[c] = count;
-        }
+        // Temporary code (until you finish TD #4)... delete this next bit when you do:
+        for (int i=0; i < NUM_COLS; i++)
+            levels[i] = (int)(Math.random()*(NUM_ROWS-2))+1;
     }
 
     /**
@@ -107,20 +97,17 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
     /**
      * Draw all the cells in the grid.
      * @param g - the graphics element that represents the visual area of this panel and the tools to draw in it.
-     * @param size - the spacing of the cells. Also the size of the drawn Cell+border in width and height.
+     * @param size - the spacing of the cells. It's also the size of the drawn Cell+border in width and height.
      */
     private void drawCells(Graphics g, int size)
     {
-        for (int r = 0; r < NUM_ROWS; r++)
-        {
-            for (int c = 0; c < NUM_COLS; c++)
-            {
-                myGrid[r][c].drawSelfAt(g,
-                        c * size + 2 * CELL_BORDER,
-                        r * size + 2 * CELL_BORDER,
-                        size - 2 * CELL_BORDER);
-            }
-        }
+        // TODO #1: loop through all the cells in myGrid and tell each one to draw itself. The cells' drawSelfAt()
+        //          method is expecting (g, x, y, boxSize).
+        //          Use x = (c * size) + (2 * CELL_BORDER),
+        //              y = (r * size) + (2 * CELL_BORDER), and
+        //              boxSize = size - (2 * CELL_BORDER).
+
+
     }
 
     /**
@@ -145,22 +132,29 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
     }
 
     /**
+     * The user just clicked a color button corresponding to the given color. Respond to this action.
+     * @param colorOfButton - the color that should be removed from myGrid.
+     */
+    public void makeMove(Color colorOfButton)
+    {
+        killAllCellsOfColor(colorOfButton);
+        dropCells();
+        checkLevels();
+        playSoundForMove();
+        repaint();
+    }
+
+    /**
      * loops through the entire grid and tells all cells with a color matching colorToKill to die(), then tells the
      * remaining cells to drop down to fill empty spaces and notifies the program that the screen needs an update.
      * @param colorToKill - the Color that we wish to eliminate.
      */
     public void killAllCellsOfColor(Color colorToKill)
     {
-        for (int r = 0; r < NUM_ROWS; r++)
-        {
-            for (int c = 0; c < NUM_COLS; c++)
-            {
-                if (myGrid[r][c].getMyColor() == colorToKill)
-                    myGrid[r][c].die();
-            }
-        }
-        dropCells();
-        repaint();
+        // TODO #2: loop through all the cells in the grid and check whether the cell's color is the same as
+        //  colorToKill. If so, tell that cell to die. (Really!)
+
+
     }
 
     /**
@@ -169,51 +163,28 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
      */
     public void dropCells()
     {
-        for (int r = NUM_ROWS-1; r >0; r--)
-            for (int c = 0; c < NUM_COLS; c++)
-                if (!myGrid[r][c].isAlive())
-                {
-                    for (int r2 = r-1; r2 >=0; r2--)
-                    {
-                        if (myGrid[r2][c].isAlive())
-                        {
-                            ColorCell temp = myGrid[r][c];
-                            myGrid[r][c] = myGrid[r2][c];
-                            myGrid[r2][c] = temp;
-                            break;
-                        }
-                    }
-                }
-        checkLevels();
+        // TODO #3: For each column, search for dead cells. If you find one, look for the first "live" cell above that
+        //          dead spot (if any) and swap them.
+
     }
 
+    /**
+     * determines whether the player has just won, lost or needs to keep going.
+     */
     public void checkLevels()
     {
-        // TODO: consider the number of live cells in each column. Are there still more cells to remove, have we matched
-        //  the target, or did the user overshoot and now there are too few somewhere?
+        // TODO #5: consider the number of live cells in each column. Are there still more cells to remove, have we
+        //  matched the target, or did the user overshoot and now there are too few somewhere?
         //  Alter gameState to be either STATUS_KEEP_GOING, STATUS_WIN, or STATUS_LOSE, accordingly.
 
-        int[] counts = new int[NUM_COLS];
-        for (int c = 0; c < NUM_COLS; c++)
-            for (int r = 0; r < NUM_ROWS; r++)
-                if (myGrid[r][c].isAlive())
-                    counts[c] ++;
 
-        for (int c = 0; c < NUM_COLS; c++)
-            if (counts[c] < levels[c])
-                gameState = STATUS_LOSE;
-        if (gameState == STATUS_KEEP_GOING)
-        {
-            gameState = STATUS_WIN;
-            for (int c = 0; c < NUM_COLS; c++)
-                if (counts[c] > levels[c])
-                {
-                    gameState = STATUS_KEEP_GOING;
-                    break;
-                }
-        }
+    }
 
-        // after you have done that, we'll play a sound:
+    /**
+     * plays a sound, based on the value of gameState.
+     */
+    private void playSoundForMove()
+    {
         if (gameState == STATUS_KEEP_GOING)
             soundPlayer.playSound("Hmm.wav");
         else if (gameState == STATUS_WIN)

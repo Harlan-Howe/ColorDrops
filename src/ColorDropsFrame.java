@@ -50,7 +50,7 @@ public class ColorDropsFrame extends JFrame implements SharedConstants, ActionLi
         colorButtons = new JButton[NUM_COLORS_USED];
         for (int i=0; i<NUM_COLORS_USED; i++)
         {
-            colorButtons[i] = new ColorButton(COLOR_LIST[i], CELL_ICONS[i]);
+            colorButtons[i] = new ColorButton(COLOR_LIST[i], ICON_LIST[i]);
             colorButtonsPanel.add(colorButtons[i]);
             colorButtons[i].setActionCommand("Color "+i);
             colorButtons[i].addActionListener(this);
@@ -75,25 +75,34 @@ public class ColorDropsFrame extends JFrame implements SharedConstants, ActionLi
         }
         if (command.equals("Instructions"))
         {
-            String instructions = "• Click on the colored buttons at left to remove all of that color from the grid at" +
-                    " right.\n• Try to remove the correct cells so that the stacks exactly match the heights indicated" +
-                    "by the dotted lines.\n• If you need to start over, click the Reset button to try again.";
-            JOptionPane.showMessageDialog(this, instructions);
+            showInstructions();
+            return;
         }
         if(command.length() > 6 && command.substring(0,6).equals("Color "))  // if this is a color button...
         {
             // Tell the main panel to kill all the cells of the corresponding color.
             int whichColor = Integer.parseInt(command.substring(6));
-            mainPanel.killAllCellsOfColor(COLOR_LIST[whichColor]);
+            mainPanel.makeMove(COLOR_LIST[whichColor]);
 
-            // prevent clicking this colorButton again. (automatically turns the button grey.)
-            ((JButton)ae.getSource()).setEnabled(false);
-
-            // if the game isn't still running, disable all the color buttons.
-            if (mainPanel.getGameState() != STATUS_KEEP_GOING )
+            if (mainPanel.getGameState() == STATUS_KEEP_GOING )
+                // prevent clicking just this colorButton again. (automatically turns the button grey.)
+                ((JButton)ae.getSource()).setEnabled(false);
+            else
+                // prevent clicking all the colorButtons.
                 for (JButton b: colorButtons)
                     b.setEnabled(false);
         }
+    }
+
+    /**
+     * displays a dialog box with the instructions for the game.
+     */
+    private void showInstructions()
+    {
+        String instructions = "• Click on the colored buttons at left to remove all of that color from the grid at" +
+                " right.\n• Try to remove the correct cells so that the stacks exactly match the heights indicated" +
+                "by the dotted lines.\n• If you need to start over, click the Reset button to try again.";
+        JOptionPane.showMessageDialog(this, instructions);
     }
 
 
@@ -104,15 +113,12 @@ public class ColorDropsFrame extends JFrame implements SharedConstants, ActionLi
      */
     public class ColorButton extends JButton
     {
-        private Color myColor;
-
         public ColorButton(Color c, String icon)
         {
             super();
-            myColor = c;
             BufferedImage bi = new BufferedImage(BUTTON_SIZE, BUTTON_SIZE, BufferedImage.TYPE_INT_ARGB);
             Graphics g2 = bi.getGraphics();
-            g2.setColor(myColor);
+            g2.setColor(c);
             g2.fillRect(0,0,BUTTON_SIZE,BUTTON_SIZE);
             if (SHOW_ICONS)
             {

@@ -11,7 +11,7 @@ public interface SharedConstants
             Color.CYAN, Color.PINK, Color.WHITE};
 
     // the corresponding icons that might be drawn on the colors.
-    public final static String[] CELL_ICONS =  {"•", "+", "x", "∆", "*", "◊", "≈", ":"};
+    public final static String[] ICON_LIST =  {"•", "+", "x", "∆", "*", "◊", "≈", ":"};
     // the font used to draw the icons.
     public final static Font CELL_ICON_FONT = new Font("Arial", Font.BOLD, 24);
     // whether or not to draw the icons. (Might be handy for color-blind users... otherwise I find it noisy.)
