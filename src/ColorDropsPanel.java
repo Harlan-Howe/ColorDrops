@@ -70,7 +70,7 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
         Color[] targetColors = new Color[NUM_COLORS_USED-1];
         for (int i=0; i<NUM_COLORS_USED -1; i++)
             targetColors[i] = COLOR_LIST[(int)(Math.random()*NUM_COLORS_USED)];
-        // TODO #4: targetColors is now a list of colors, possibly (likely) with some duplicates.
+        // TODO #2: targetColors is now a list of colors, possibly (likely) with some duplicates.
         //          For each column, add up all the cells that match any of the colors in targetColors and
         //          set levels[col#] to be that count.
         // Note: if Color.RED is in the targetColors twice, and you have a cell that is red, it should only
@@ -151,7 +151,7 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
      */
     public void killAllCellsOfColor(Color colorToKill)
     {
-        // TODO #2: loop through all the cells in the grid and check whether the cell's color is the same as
+        // TODO #3: loop through all the cells in the grid and check whether the cell's color is the same as
         //  colorToKill. If so, tell that cell to die. (Really!)
 
 
@@ -163,7 +163,7 @@ public class ColorDropsPanel extends JPanel implements SharedConstants
      */
     public void dropCells()
     {
-        // TODO #3: For each column, search for dead cells. If you find one, look for the first "live" cell above that
+        // TODO #4: For each column, search for dead cells. If you find one, look for the first "live" cell above that
         //          dead spot (if any) and swap them.
 
     }
